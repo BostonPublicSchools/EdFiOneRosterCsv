@@ -18,10 +18,13 @@ SELECT DISTINCT
 	, CONVERT(VARCHAR(50),CAST(SEC.LastModifiedDate AS datetimeoffset),127)										AS dateLastModified  
 	, NULL																										AS metadata
 	, CONCAT(SEC.LocalCourseCode, ' ', SEC.SequenceOfCourse, ' ', COU.CourseTitle)								AS title
-	, TRIM(CONCAT(SEC.LocalCourseCode, '-', STA.LastSurname, ', ', STA.FirstName, ' ', STA.MiddleName))			AS classCode
+	--, TRIM(CONCAT(SEC.LocalCourseCode, '-', STA.LastSurname, ', ', STA.FirstName, ' ', STA.MiddleName))			AS classCode
+	, (CONCAT(SEC.LocalCourseCode, '-', STA.LastSurname, ', ', STA.FirstName, ' ', STA.MiddleName))			AS classCode
 	, CASE WHEN STU.HomeroomIndicator = '1' THEN 'homeroom' ELSE 'scheduled' END								AS classType
     , SEC.LocationClassroomIdentificationCode																	AS location
-    , CONCAT('[', (SELECT STRING_AGG(
+    , CONCAT('[', 
+	--(SELECT STRING_AGG(
+	 STUFF((SELECT ', '+(
 			CASE 
 				WHEN  COGLD.CodeValue = 'Infant/toddler' THEN '"IT"' 
 				WHEN  COGLD.CodeValue = 'Preschool/Prekindergarten' THEN '"PR/PK"' 
@@ -45,22 +48,26 @@ SELECT DISTINCT
 				WHEN  COGLD.CodeValue = 'Other' THEN '"Other"' 
 				ELSE 'NA'
 			END
-			, ', ')
+			--, ', ')
+			)
 	  FROM edfi.CourseOfferedGradeLevel AS COG
 	  INNER JOIN edfi.Descriptor AS COGLD ON COG.GradeLevelDescriptorId = COGLD.DescriptorId 
-		WHERE COG.CourseCode=COU.CourseCode and COG.EducationOrganizationId=COU.EducationOrganizationId) ,']')	AS grades
+		WHERE COG.CourseCode=COU.CourseCode and COG.EducationOrganizationId=COU.EducationOrganizationId
+		FOR XML PATH('')) ,1,1,'') 
+		
+		,']')	AS grades
 	, CONCAT('["', ASD.CodeValue, '"]')																			AS subjects
     , CONCAT('{ "sourceId":"', COU.Id, '" }')																	AS course
 	, CONCAT('{ "sourceId":"', EDO.Id, '" }')																	AS school
 	, CONCAT('{ "sourceId":"', TDE.Id, '" }')																	AS terms
 	, NULL																										AS subjectCodes 
-	, CONCAT('[', (SELECT STRING_AGG(CONCAT('"',SCP.ClassPeriodName,'"'),', ')
+	, CONCAT('[', STUFF((SELECT ', '+ (CONCAT('"',SCP.ClassPeriodName,'"'))
 	  FROM edfi.SectionClassPeriod AS SCP 
 		WHERE  SCP.LocalCourseCode = SEC.LocalCourseCode
 		AND SCP.SchoolId = SEC.SchoolId 
 		AND SCP.SchoolYear = SEC.SchoolYear
 		AND SCP.SectionIdentifier = SEC.SectionIdentifier
-		AND SCP.SessionName = SEC.SessionName), ']')															AS periods
+		AND SCP.SessionName = SEC.SessionName FOR XML PATH('')),1,1,''), ']')															AS periods
 	, NULL																										AS resources
 FROM edfi.Section AS SEC
 INNER JOIN edfi.EducationOrganization EDO ON SEC.SchoolId = EDO.EducationOrganizationId

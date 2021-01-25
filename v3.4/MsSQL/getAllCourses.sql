@@ -19,7 +19,8 @@ SELECT DISTINCT
 	, COU.CourseTitle																							AS title
 	, SYT.SchoolYear																							AS schoolYear
 	, COU.CourseCode																							AS courseCode
-	, CONCAT('[', (SELECT STRING_AGG(
+	, CONCAT('[',-- (SELECT STRING_AGG( 
+	 STUFF((SELECT ', '+ (
 			CASE 
 				WHEN  COGLD.CodeValue = 'Infant/toddler' THEN '"IT"' 
 				WHEN  COGLD.CodeValue = 'Preschool/Prekindergarten' THEN '"PR/PK"' 
@@ -43,10 +44,14 @@ SELECT DISTINCT
 				WHEN  COGLD.CodeValue = 'Other' THEN '"Other"' 
 				ELSE 'NA'
 			END
-			, ', ')
+			--, ', ')
+			)
 	  FROM edfi.CourseOfferedGradeLevel AS COG
 	  INNER JOIN edfi.Descriptor AS COGLD ON COG.GradeLevelDescriptorId = COGLD.DescriptorId 
-		WHERE COG.CourseCode=COU.CourseCode and COG.EducationOrganizationId=COU.EducationOrganizationId) ,']')	AS grades
+		WHERE COG.CourseCode=COU.CourseCode and COG.EducationOrganizationId=COU.EducationOrganizationId
+		FOR XML PATH('')),1,1,'') 
+		
+		,']')	AS grades
 	, CONCAT('[','"',SUD.CodeValue,'"',']')                                                                     AS subjects
 	, CONCAT('{ "sourceId":"', Edo.Id, '" }')																	AS org
 	, NULL																										AS subjectCodes 
@@ -63,3 +68,5 @@ LEFT JOIN edfi.SchoolYearType SYT
 INNER JOIN edfi.AcademicSubjectDescriptor ASD 
 	ON COU.AcademicSubjectDescriptorId = ASD.AcademicSubjectDescriptorId
 INNER JOIN edfi.Descriptor SUD ON ASD.AcademicSubjectDescriptorId = SUD.DescriptorId 
+
+

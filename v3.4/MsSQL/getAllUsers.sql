@@ -85,8 +85,9 @@ SELECT DISTINCT
     , SEOAT.TelephoneNumber																									AS phone
 	, NULL																													AS agents
     , CONCAT('[{ "sourceId":"',SSA.StudentOrganization, '" }]')																AS orgs
-    , CONCAT('[', (SELECT STRING_AGG(grade , ', ')
-		FROM(SELECT DISTINCT
+    , CONCAT('[',
+	STUFF
+		 ((SELECT  DISTINCT ', '+
 			CASE 
 				WHEN  COGLD.CodeValue = 'Infant/toddler' THEN '"IT"' 
 				WHEN  COGLD.CodeValue = 'Preschool/Prekindergarten' THEN '"PR/PK"' 
@@ -130,7 +131,7 @@ SELECT DISTINCT
 		  INNER JOIN edfi.Descriptor AS COGLD 
 			ON COG.GradeLevelDescriptorId = COGLD.DescriptorId 
 			WHERE SSAG.StudentUSI = STU.StudentUSI
-		) Student_Grades) 
+		FOR XML PATH('')),1,1,'' ) 
 		,']')																												AS grades
     , CONCAT('s-' , STU.StudentUniqueId)																					AS password
 FROM edfi.Student STU
