@@ -18,10 +18,11 @@ SELECT DISTINCT
 	, CONVERT(VARCHAR(50),CAST(SEC.LastModifiedDate AS datetimeoffset),127)										AS dateLastModified  
 	, NULL																										AS metadata
 	, CONCAT(SEC.LocalCourseCode, ' ', SEC.SequenceOfCourse, ' ', COU.CourseTitle)								AS title
-	--, TRIM(CONCAT(SEC.LocalCourseCode, '-', STA.LastSurname, ', ', STA.FirstName, ' ', STA.MiddleName))			AS classCode
+	--, TRIM(CONCAT(SEC.LocalCourseCode, '-', STA.LastSurname, ', ', STA.FirstName, ' ', STA.MiddleName))		AS classCode
 	, (CONCAT(SEC.LocalCourseCode, '-', STA.LastSurname, ', ', STA.FirstName, ' ', STA.MiddleName))			AS classCode
 	, CASE WHEN STU.HomeroomIndicator = '1' THEN 'homeroom' ELSE 'scheduled' END								AS classType
-    , SEC.LocationClassroomIdentificationCode																	AS location
+    , SEC.LocationClassroomIdentificationCode																	AS [location]
+	, EDO.EducationOrganizationId																				AS SchoolId	
     , CONCAT('[', 
 	--(SELECT STRING_AGG(
 	 STUFF((SELECT ', '+(
@@ -62,6 +63,7 @@ SELECT DISTINCT
 	, CONCAT('{ "sourceId":"', TDE.Id, '" }')																	AS terms
 	, NULL																										AS subjectCodes 
 	, CONCAT('[', STUFF((SELECT ', '+ (CONCAT('"',SCP.ClassPeriodName,'"'))
+															
 	  FROM edfi.SectionClassPeriod AS SCP 
 		WHERE  SCP.LocalCourseCode = SEC.LocalCourseCode
 		AND SCP.SchoolId = SEC.SchoolId 
@@ -105,5 +107,5 @@ GROUP BY	SEC.Id, SEC.LastModifiedDate, SEC.LocalCourseCode, SEC.SequenceOfCourse
 			COU.Id, COU.CourseTitle, COU.CourseCode, COU.EducationOrganizationId, 
 			STA.LastSurname, STA.FirstName, STA.MiddleName, 
 			STU.HomeroomIndicator, 
-			EDO.Id, ASD.CodeValue, TDE.id
+			EDO.Id, ASD.CodeValue, TDE.id, EDO.EducationOrganizationId
 ORDER BY sourceId OFFSET 0 ROWS;

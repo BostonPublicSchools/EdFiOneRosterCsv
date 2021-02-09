@@ -37,12 +37,12 @@ SELECT
 	, CONCAT('{ "sourceId":"', NULL, '" }')	AS parent
 	, NULL									AS children
     , SYT.SchoolYear						AS schoolYear
+	, ''									AS schoolId
 FROM edfi.SchoolYearType AS SYT
 INNER JOIN edfi.Session AS SES ON SYT.SchoolYear = SES.SchoolYear
-Group by SYT.Id, SYT.SchoolYear, SYT.CurrentSchoolYear, SYT.LastModifiedDate, SYT.SchoolYearDescription
-
+--WHERE SES.SchoolId=1010
+Group by SYT.Id, SYT.SchoolYear, SYT.CurrentSchoolYear, SYT.LastModifiedDate, SYT.SchoolYearDescription--,SES.SchoolId
 UNION ALL
-
 --Terms
 SELECT       
 	TDE.Id										AS sourceId
@@ -58,13 +58,12 @@ SELECT
 	, CONCAT('{ "sourceId":"', SYT.Id, '" }')	AS parent
 	, NULL										AS children
     , SYT.SchoolYear							AS schoolYear
+	, ''										AS SchoolId
 FROM edfi.SchoolYearType AS SYT
 INNER JOIN edfi.Session AS SES ON SYT.SchoolYear = SES.SchoolYear
 INNER JOIN edfi.Descriptor TDE ON ses.TermDescriptorId = TDE.DescriptorId
-Group by SYT.Id, SYT.SchoolYear, SYT.CurrentSchoolYear, TDE.Id, TDE.CodeValue
-
+Group by SYT.Id, SYT.SchoolYear, SYT.CurrentSchoolYear, TDE.Id, TDE.CodeValue--,SES.SchoolId
 UNION ALL
-
 -- Sessions
 SELECT       
 	SES.Id									  	AS sourceId
@@ -80,12 +79,11 @@ SELECT
 	, CONCAT('{ "sourceId":"', TDE.Id, '" }')	AS parent
 	, NULL										AS children
     , SES.SchoolYear							AS schoolYear
+	, SES.SchoolId								AS SchoolId
 FROM edfi.Session AS SES
 INNER JOIN edfi.SchoolYearType AS SYT ON SES.SchoolYear = SYT.SchoolYear
 LEFT JOIN edfi.Descriptor TDE ON ses.TermDescriptorId = TDE.DescriptorId
-
 UNION ALL
-
 -- Grading Periods
 SELECT 
 	GP.Id										AS sourceId
@@ -101,7 +99,8 @@ SELECT
 	, CONCAT('{ "sourceId":"', SES.Id, '" }')	AS parent
 	, NULL										AS children
 	, GP.SchoolYear								AS schoolYear
-FROM edfi.GradingPeriod				AS GP
+	, GP.SchoolId								AS SchoolId
+FROM edfi.GradingPeriod AS GP
 INNER JOIN edfi.Descriptor AS DES ON DES.DescriptorId = GP.GradingPeriodDescriptorId
 INNER JOIN edfi.SessionGradingPeriod AS SGP 
 	ON SGP.GradingPeriodDescriptorId = GP.GradingPeriodDescriptorId 
