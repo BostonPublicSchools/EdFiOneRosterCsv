@@ -9,7 +9,7 @@
 		Assumptions: We are representing the hirearchy between State -> LEAs -> Schools
 -- ============================================= */
 
-CREATE VIEW onerosterv11csv.getAllOrgs
+CREATE OR ALTER VIEW onerosterv11csv.getAllOrgs
 AS
 --Types: department, school,district,local,state,national
 SELECT 
