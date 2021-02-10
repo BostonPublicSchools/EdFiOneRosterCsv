@@ -32,7 +32,7 @@ SELECT DISTINCT
 	, CONCAT('[{ "sourceId":"',SEOAA.StaffOrganization, '" }]')											AS orgs
 	, NULL																								AS grades
 	, CONCAT('e-' , STA.StaffUniqueId)																	AS password
-	,SEOAA.EducationOrganizationIds																		AS EducationorganizationIds
+	,SEOAA.EducationOrganizationIds																		AS EducationorganizationId
 FROM edfi.Staff STA
 LEFT JOIN(
 	SELECT ROW_NUMBER() over (partition by STEOT.StaffUSI ORDER BY STEOT.Id DESC) as StaffCount	
@@ -136,7 +136,7 @@ SELECT DISTINCT
 		FOR XML PATH('')),1,1,'' ) 
 		,']')																												AS grades
     , CONCAT('s-' , STU.StudentUniqueId)																					AS password
-	,SSA.SchoolId																											AS EducationorganizationIds
+	,SSA.SchoolId																											AS EducationorganizationId
 FROM edfi.Student STU
 LEFT JOIN(
 	SELECT ROW_NUMBER() over (partition by SSAT.StudentUSI ORDER BY SSAT.id DESC) as studentCount	
