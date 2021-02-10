@@ -10,7 +10,7 @@
 		Link: https://www.imsglobal.org/oneroster-v11-final-specification#_Toc480452011
 -- ============================================= */
 
-CREATE VIEW onerosterv11csv.getAllCourses
+CREATE OR ALTER VIEW onerosterv11csv.getAllCourses
 AS
 SELECT DISTINCT
 	COU.Id																										AS sourceId
@@ -18,6 +18,7 @@ SELECT DISTINCT
     , CONVERT(VARCHAR(50),CAST(COU.LastModifiedDate AS datetimeoffset),127)										AS dateLastModified
 	, COU.CourseTitle																							AS title
 	, SYT.SchoolYear																							AS schoolYear
+	, SYT.Id																									AS schoolYearSourcedId
 	, COU.CourseCode																							AS courseCode
 	, CONCAT('[',-- (SELECT STRING_AGG( 
 	 STUFF((SELECT ', '+ (
@@ -56,17 +57,22 @@ SELECT DISTINCT
 	, CONCAT('{ "sourceId":"', Edo.Id, '" }')																	AS org
 	, NULL																										AS subjectCodes 
 	, NULL																										AS resources
-
-FROM edfi.Course					AS COU
-INNER JOIN  edfi.CourseOffering COO 
+	,EDO.EducationOrganizationId
+	--/.,COO.SchoolId
+FROM edfi.CourseOffering AS COO --edfi.Course					AS COU
+INNER JOIN edfi.Course					AS COU  --edfi.CourseOffering COO  
 	ON COU.CourseCode = COO.CourseCode
-	AND COu.EducationOrganizationId = COO.EducationOrganizationId
+	--AND COU.EducationOrganizationId = COO.EducationOrganizationId
+	AND COU.EducationOrganizationId = COO.EducationOrganizationId	 
 INNER JOIN edfi.EducationOrganization EDO 
 	ON COU.EducationOrganizationId = EDO.EducationOrganizationId
+	--ON  COO.SchoolId = EDO.EducationOrganizationId
 LEFT JOIN edfi.SchoolYearType SYT	
 	ON COO.SchoolYear = SYT.SchoolYear
 INNER JOIN edfi.AcademicSubjectDescriptor ASD 
 	ON COU.AcademicSubjectDescriptorId = ASD.AcademicSubjectDescriptorId
 INNER JOIN edfi.Descriptor SUD ON ASD.AcademicSubjectDescriptorId = SUD.DescriptorId 
+
+
 
 

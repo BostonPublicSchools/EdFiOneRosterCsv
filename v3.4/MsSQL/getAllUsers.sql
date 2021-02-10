@@ -8,7 +8,7 @@
 		Link: https://www.imsglobal.org/oneroster-v11-final-specification#_Toc480452019
 -- ============================================= */
 
-CREATE VIEW onerosterv11csv.getAllUsers
+CREATE OR ALTER VIEW onerosterv11csv.getAllUsers
 AS
 
 SELECT DISTINCT
@@ -32,6 +32,7 @@ SELECT DISTINCT
 	, CONCAT('[{ "sourceId":"',SEOAA.StaffOrganization, '" }]')											AS orgs
 	, NULL																								AS grades
 	, CONCAT('e-' , STA.StaffUniqueId)																	AS password
+	,SEOAA.EducationOrganizationIds																		AS EducationorganizationIds
 FROM edfi.Staff STA
 LEFT JOIN(
 	SELECT ROW_NUMBER() over (partition by STEOT.StaffUSI ORDER BY STEOT.Id DESC) as StaffCount	
@@ -39,6 +40,7 @@ LEFT JOIN(
 	, STEOT.EndDate
 	, STEOT.EducationOrganizationId
 	, EOT.Id AS StaffOrganization
+	, EOT.EducationOrganizationId AS EducationorganizationIds
 	FROM edfi.StaffEducationOrganizationAssignmentAssociation STEOT
 	LEFT JOIN edfi.educationorganization EOT ON STEOT.educationorganizationid = EOT.educationorganizationid
 ) SEOAA 
@@ -134,6 +136,7 @@ SELECT DISTINCT
 		FOR XML PATH('')),1,1,'' ) 
 		,']')																												AS grades
     , CONCAT('s-' , STU.StudentUniqueId)																					AS password
+	,SSA.SchoolId																											AS EducationorganizationIds
 FROM edfi.Student STU
 LEFT JOIN(
 	SELECT ROW_NUMBER() over (partition by SSAT.StudentUSI ORDER BY SSAT.id DESC) as studentCount	

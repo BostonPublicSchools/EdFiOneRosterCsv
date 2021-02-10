@@ -10,7 +10,7 @@
 		Link: https://www.imsglobal.org/oneroster-v11-final-specification#_Toc480452010
 -- ============================================= */
 
-CREATE VIEW onerosterv11csv.getAllClasses
+CREATE OR ALTER VIEW onerosterv11csv.getAllClasses
 AS
 SELECT DISTINCT
     SEC.Id																										AS sourceId
@@ -22,7 +22,7 @@ SELECT DISTINCT
 	, (CONCAT(SEC.LocalCourseCode, '-', STA.LastSurname, ', ', STA.FirstName, ' ', STA.MiddleName))			AS classCode
 	, CASE WHEN STU.HomeroomIndicator = '1' THEN 'homeroom' ELSE 'scheduled' END								AS classType
     , SEC.LocationClassroomIdentificationCode																	AS [location]
-	, EDO.EducationOrganizationId																				AS SchoolId	
+	, EDO.EducationOrganizationId																				AS EducationOrganizationId	
     , CONCAT('[', 
 	--(SELECT STRING_AGG(
 	 STUFF((SELECT ', '+(

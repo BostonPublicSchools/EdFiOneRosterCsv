@@ -19,7 +19,7 @@
 	Date Format: You must write all the dates on the views in the required format: CONVERT(varchar(50), CAST(<your date> AS datetimeoffset), 127)
 -- ============================================= */
 
-CREATE VIEW onerosterv11csv.getAllAcademicSessions
+CREATE OR ALTER VIEW onerosterv11csv.getAllAcademicSessions
 AS
 
 -- SchoolYears
@@ -37,7 +37,7 @@ SELECT
 	, CONCAT('{ "sourceId":"', NULL, '" }')	AS parent
 	, NULL									AS children
     , SYT.SchoolYear						AS schoolYear
-	, ''									AS schoolId
+	, ''									AS EducationOrganizationId
 FROM edfi.SchoolYearType AS SYT
 INNER JOIN edfi.Session AS SES ON SYT.SchoolYear = SES.SchoolYear
 --WHERE SES.SchoolId=1010
@@ -58,7 +58,7 @@ SELECT
 	, CONCAT('{ "sourceId":"', SYT.Id, '" }')	AS parent
 	, NULL										AS children
     , SYT.SchoolYear							AS schoolYear
-	, ''										AS SchoolId
+	, ''										AS EducationOrganizationId
 FROM edfi.SchoolYearType AS SYT
 INNER JOIN edfi.Session AS SES ON SYT.SchoolYear = SES.SchoolYear
 INNER JOIN edfi.Descriptor TDE ON ses.TermDescriptorId = TDE.DescriptorId
@@ -79,7 +79,7 @@ SELECT
 	, CONCAT('{ "sourceId":"', TDE.Id, '" }')	AS parent
 	, NULL										AS children
     , SES.SchoolYear							AS schoolYear
-	, SES.SchoolId								AS SchoolId
+	, SES.SchoolId								AS EducationOrganizationId
 FROM edfi.Session AS SES
 INNER JOIN edfi.SchoolYearType AS SYT ON SES.SchoolYear = SYT.SchoolYear
 LEFT JOIN edfi.Descriptor TDE ON ses.TermDescriptorId = TDE.DescriptorId
@@ -99,7 +99,7 @@ SELECT
 	, CONCAT('{ "sourceId":"', SES.Id, '" }')	AS parent
 	, NULL										AS children
 	, GP.SchoolYear								AS schoolYear
-	, GP.SchoolId								AS SchoolId
+	, GP.SchoolId								AS EducationOrganizationId
 FROM edfi.GradingPeriod AS GP
 INNER JOIN edfi.Descriptor AS DES ON DES.DescriptorId = GP.GradingPeriodDescriptorId
 INNER JOIN edfi.SessionGradingPeriod AS SGP 

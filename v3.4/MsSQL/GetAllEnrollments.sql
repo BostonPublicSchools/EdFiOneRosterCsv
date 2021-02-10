@@ -8,10 +8,10 @@
 		Link: https://www.imsglobal.org/oneroster-v11-final-specification#_Toc480452013
 -- ============================================= */
 
-CREATE VIEW onerosterv11csv.getAllEnrollments
+CREATE OR ALTER VIEW onerosterv11csv.getAllEnrollments
 AS
 SELECT DISTINCT
-		STA.id																								AS userId
+		 STA.id																								AS userId
 		, SSA.Id																							AS sourceId
 		, CASE WHEN STSA.endDate >= DATEADD(day,1,GETDATE()) THEN 'active' ELSE 'tobedeleted' END			AS status
 		, CONVERT(VARCHAR(50),CAST(SEC.LastModifiedDate AS datetimeoffset),127)								AS dateLastModified
@@ -23,6 +23,7 @@ SELECT DISTINCT
 		, CAST(CASE WHEN CD.CodeValue = 'Teacher Of Record' THEN 1 ELSE 0 END AS BIT)               		AS [primary]
 		, CONVERT(VARCHAR(50),CAST(SSA.BeginDate AS datetimeoffset),127)									AS beginDate
 		, CONVERT(VARCHAR(50),CAST(SSA.EndDate AS datetimeoffset),127)										AS endDate
+		,EO.EducationOrganizationId																			AS EducationOrganizationId
 FROM edfi.Staff STA 
 LEFT JOIN edfi.StaffSectionAssociation SSA 
 	ON STA.StaffUSI = SSA.StaffUSI
@@ -55,6 +56,7 @@ SELECT DISTINCT
 	, CAST(NULL AS BIT)																					AS [primary]
 	, CONVERT(VARCHAR(50),CAST(STSA.BeginDate AS datetimeoffset),127)									AS beginDate
 	, CONVERT(VARCHAR(50),CAST(STSA.EndDate AS datetimeoffset),127)										AS endDate
+	,EO.EducationOrganizationId																			AS EducationOrganizationId
 FROM edfi.Staff STA 
 LEFT JOIN edfi.StaffSectionAssociation SSA 
 	ON STA.StaffUSI = SSA.StaffUSI

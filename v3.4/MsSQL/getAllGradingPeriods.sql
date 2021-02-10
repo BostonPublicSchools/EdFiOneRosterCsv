@@ -21,6 +21,7 @@ SELECT
 	, GP.SchoolYear														AS schoolYear
 	, SGP.schoolId														AS schoolId
 	, SGP.sessionName                                          		 	AS sessionName
+	, SGP.schoolId														AS EducationOrganizationId
 FROM edfi.GradingPeriod				AS GP
 INNER JOIN edfi.Descriptor AS DES ON DES.DescriptorId = GP.GradingPeriodDescriptorId
 INNER JOIN edfi.SessionGradingPeriod AS SGP 
